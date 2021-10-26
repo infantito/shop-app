@@ -1,25 +1,46 @@
 {
-  "main": "node_modules/expo/AppEntry.js",
+  "name": "meals-expo",
+  "author": "Daniel Infante <danielinfantito61@gmail.com>",
+  "main": "./src/app.tsx",
   "scripts": {
     "start": "expo start",
+    "restart": "expo r -c",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "eject": "expo eject"
+    "eject": "expo eject",
+    "clear": "rm -rf .expo && rm -rf .expo-shared && rm -rf ~/.expo/starter-app-cache"
   },
   "dependencies": {
+    "@react-navigation/bottom-tabs": "^6.0.9",
+    "@react-navigation/drawer": "^6.1.8",
+    "@react-navigation/material-bottom-tabs": "^6.0.9",
+    "@react-navigation/native": "^6.0.6",
+    "@react-navigation/native-stack": "^6.2.5",
+    "@react-navigation/stack": "^6.0.11",
+    "@reduxjs/toolkit": "^1.6.2",
     "expo": "~43.0.0",
+    "expo-app-loading": "^1.2.1",
     "expo-status-bar": "~1.1.0",
-    "react": "17.0.1",
-    "react-dom": "17.0.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "react-native": "0.64.2",
-    "react-native-web": "0.17.1"
+    "react-native-gesture-handler": "^1.10.3",
+    "react-native-paper": "^4.9.2",
+    "react-native-reanimated": "^2.2.3",
+    "react-native-safe-area-context": "^3.3.2",
+    "react-native-screens": "^3.8.0",
+    "react-native-vector-icons": "^9.0.0",
+    "react-native-web": "0.17.1",
+    "react-navigation-header-buttons": "^9.0.0",
+    "react-redux": "^7.2.6"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
-    "@types/react": "~17.0.21",
-    "@types/react-native": "~0.64.12",
-    "typescript": "~4.3.5"
+    "@types/react": "^17.0.33",
+    "@types/react-native": "^0.66.1",
+    "babel-plugin-module-resolver": "^4.1.0",
+    "typescript": "^4.4.3"
   },
   "private": true
 }

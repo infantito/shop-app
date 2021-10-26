@@ -1,0 +1,49 @@
+{
+  "ReactFunctionComponent": {
+    "prefix": "rfc",
+    "body": [
+      "import * as React from 'react'",
+      "",
+      "const ${1:ComponentName} = () => {",
+      "  return ()",
+      "}",
+      "",
+      "export default ${1:ComponentName}"
+    ],
+    "description": "ReactFC"
+  },
+  "ReactNativeComponent": {
+    "prefix": "rnfc",
+    "body": [
+      "import * as React from 'react'",
+      "import { View, Text, StyleSheet } from 'react-native'",
+      "",
+      "const styles = StyleSheet.create({})",
+      "",
+      "const ${1:ComponentName} = () => {",
+      "  return (",
+      "    <View>",
+      "      <Text>${1:ComponentName}</Text>",
+      "    </View>",
+      "  )",
+      "}",
+      "",
+      "export default ${1:ComponentName}"
+    ],
+    "description": "ReactFC"
+  },
+  "UsingReactProps": {
+    "prefix": "cprops",
+    "body": [
+      "const { ${1:} } = props"
+    ]
+  },
+  "UsingStyleSheet": {
+    "prefix": "stl",
+    "body": [
+      "const styles = StyleSheet.create({",
+      "  ${1:view}: {}",
+      "})"
+    ]
+  }
+}
