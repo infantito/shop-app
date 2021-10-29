@@ -1,5 +1,6 @@
 export * from './common'
+export * from './navigation-options'
 
-export * as REGEX from './regex'
-
-export { default as COLORS } from './colors'
+export { default as Colors } from './colors'
+export { default as Regex } from './regex'
+export { default as Routes } from './routes'
