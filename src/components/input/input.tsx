@@ -2,7 +2,7 @@ import * as React from 'react'
 import { View, Text, TextInput } from 'react-native'
 
 import type { InputProps as Props } from '~typings/components'
-import { REGEX } from '~constants'
+import { Regex } from '~constants'
 import inputStyles from './input.styles'
 
 const Input = (props: Props) => {
@@ -23,7 +23,7 @@ const Input = (props: Props) => {
 
   const [state, setState] = React.useState({
     value: initialValue ?? '',
-    isValid: initiallyValid,
+    isValid: initiallyValid ?? false,
     touched: false,
   })
 
@@ -33,19 +33,13 @@ const Input = (props: Props) => {
 
   const { value, isValid, touched } = state
 
-  React.useEffect(() => {
-    if (touched) {
-      onInputChange(id, value, isValid)
-    }
-  }, [id, onInputChange, state])
-
   const handleChange = (text: string) => {
     let isValid = true
 
     if (required && text.trim().length === 0) {
       isValid = false
     }
-    if (email && !REGEX.email.test(text.toLowerCase())) {
+    if (email && !Regex.email.test(text.toLowerCase())) {
       isValid = false
     }
     if (min != null && +text < min) {

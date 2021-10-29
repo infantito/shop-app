@@ -19,9 +19,14 @@ export type CartProduct = {
 
 export type Order = {
   id: string
+  date: number
   items: CartProduct[]
 }
 
-export type OrderProduct = {
-  item: CartProduct
+export type OrderProduct = CartProduct
+
+export type UserAuth = {
+  user: User
+  token: string
+  expiresIn: number
 }
