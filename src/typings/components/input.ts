@@ -2,8 +2,8 @@ import type { TextInputProps } from 'react-native'
 
 export type InputProps = {
   id: string
-  initialValue: string
-  initiallyValid: boolean
+  initialValue?: string
+  initiallyValid?: boolean
   required?: boolean
   email?: boolean
   min?: number
