@@ -5,7 +5,8 @@ import type { RootState } from '~typings/store'
 import type { RouterProps as Props } from '~typings/router'
 import { Home } from '~screens'
 import { Routes } from '~constants'
-import { AuthNavigator, RootStack, ShopNavigator } from './navigators'
+import { AuthNavigator, RootStack } from './router-stack'
+import { ShopNavigator } from './router-drawer'
 
 const Router = (props: Props) => {
   const [token, isProcessing] = useSelector(({ auth }: RootState) => [auth.token, auth.isProcessing])

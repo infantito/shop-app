@@ -1,15 +1,14 @@
 import * as React from 'react'
-import { useSelector } from 'react-redux'
 
-import type { RootState } from '~typings/store'
 import type { ProductsProps as Props } from '~typings/screens'
+import { Routes } from '~constants'
 import ProductsOverview from './products-overview'
 import UserProducts from './user-products'
 
 const Products = (props: Props) => {
-  const token = useSelector((state: RootState) => state.auth.token)
+  const { route } = props
 
-  if (token) {
+  if (route.name === Routes.USER_PRODUCTS) {
     return <UserProducts {...props} />
   }
 

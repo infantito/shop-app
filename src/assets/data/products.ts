@@ -28,7 +28,7 @@ const products: Product[] = [
     price: 8.99,
   },
   {
-    id: 'kv8xewq7',
+    id: 'kvcxo0ji',
     ownerId: 'kvb7hv6b',
     imageUrl:
       'https://images.pexels.com/photos/46274/pexels-photo-46274.jpeg?cs=srgb&dl=blur-blurred-book-pages-46274.jpg&fm=jpg',
@@ -37,7 +37,7 @@ const products: Product[] = [
     price: 15.99,
   },
   {
-    id: 'kv8xegd1',
+    id: 'kvcxnloa',
     ownerId: 'kvb7hic0',
     imageUrl:
       'https://get.pxhere.com/photo/laptop-computer-macbook-mac-screen-water-board-keyboard-technology-air-mouse-photo-airport-aircraft-tablet-aviation-office-black-monitor-keys-graphic-hardware-image-pc-exhibition-multimedia-calculator-vector-water-cooling-floppy-disk-phased-out-desktop-computer-netbook-personal-computer-computer-monitor-electronic-device-computer-hardware-display-device-448748.jpg',
@@ -46,7 +46,7 @@ const products: Product[] = [
     price: 2299.99,
   },
   {
-    id: 'kv8xewq7',
+    id: 'kvcxo5sb',
     ownerId: 'kvb7hv6b',
     imageUrl: 'https://cdn.pixabay.com/photo/2015/10/03/02/14/pen-969298_1280.jpg',
     title: 'Pen & Paper',
