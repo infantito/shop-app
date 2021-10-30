@@ -1,33 +1,44 @@
 import * as React from 'react'
 import { Button, SafeAreaView } from 'react-native'
-import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer'
+import {
+  createDrawerNavigator,
+  DrawerContentComponentProps,
+  DrawerContentScrollView,
+  DrawerItemList,
+} from '@react-navigation/drawer'
 import { Ionicons } from '@expo/vector-icons'
+import { useDispatch } from 'react-redux'
 
+import { signOut } from '~store'
 import { Colors, DrawerNavigationOptions, isAndroid, Routes } from '~constants'
 import { AdminNavigator, OrdersNavigator, ProductNavigator } from './router-stack'
 
 export const ShopStack = createDrawerNavigator()
 
+const DrawerContent = (props: DrawerContentComponentProps) => {
+  const dispatch = useDispatch()
+
+  return (
+    <DrawerContentScrollView style={{ flex: 1, paddingTop: 20 }} {...props}>
+      <SafeAreaView>
+        <DrawerItemList {...props} />
+        <Button
+          title="Sign out"
+          color={Colors.primary}
+          onPress={() => {
+            dispatch(signOut())
+          }}
+        />
+      </SafeAreaView>
+    </DrawerContentScrollView>
+  )
+}
+
 export const ShopNavigator = () => (
   <ShopStack.Navigator
     initialRouteName={Routes.PRODUCTS}
     screenOptions={{ headerShown: false }}
-    drawerContent={props => {
-      return (
-        <DrawerContentScrollView style={{ flex: 1, paddingTop: 20 }} {...props}>
-          <SafeAreaView>
-            <DrawerItemList {...props} />
-            <Button
-              title="Sign out"
-              color={Colors.primary}
-              onPress={() => {
-                console.log('dispatch: sign out')
-              }}
-            />
-          </SafeAreaView>
-        </DrawerContentScrollView>
-      )
-    }}
+    drawerContent={props => <DrawerContent {...props} />}
   >
     <ShopStack.Screen
       name={Routes.PRODUCTS}

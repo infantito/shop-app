@@ -60,7 +60,9 @@ const authSlice = createSlice({
       }
     },
     [AuthAction.SIGN_OUT]: () => {
-      return initialState
+      AsyncStorage.clear()
+
+      return { ...initialState, isProcessing: false }
     },
     [AuthAction.SIGN_UP]: (state, action: PayloadAction<UserCredentials>) => {
       const { username, password } = action.payload

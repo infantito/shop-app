@@ -28,14 +28,17 @@ const Auth = (props: Props) => {
     },
   })
 
-  const updater = (newState: Partial<typeof state>) => {
-    setState(prevState => ({
-      ...prevState,
-      ...newState,
-      inputValues: { ...prevState.inputValues, ...newState.inputValues },
-      inputValidities: { ...prevState.inputValidities, ...newState.inputValidities },
-    }))
-  }
+  const updater = React.useMemo(
+    () => (newState: Partial<typeof state>) => {
+      setState(prevState => ({
+        ...prevState,
+        ...newState,
+        inputValues: { ...prevState.inputValues, ...newState.inputValues },
+        inputValidities: { ...prevState.inputValidities, ...newState.inputValidities },
+      }))
+    },
+    []
+  )
 
   const { inputValues } = state
 
@@ -71,16 +74,19 @@ const Auth = (props: Props) => {
     }
   }
 
-  const handleInputChange = (inputIdentifier: string, inputValue: string, inputValidity: boolean) => {
-    updater({
-      inputValues: {
-        [inputIdentifier]: inputValue,
-      } as typeof state.inputValues,
-      inputValidities: {
-        [inputIdentifier]: Boolean(inputValidity),
-      } as typeof state.inputValidities,
-    })
-  }
+  const handleInputChange = React.useCallback(
+    (inputIdentifier: string, inputValue: string, inputValidity: boolean) => {
+      updater({
+        inputValues: {
+          [inputIdentifier]: inputValue,
+        } as typeof state.inputValues,
+        inputValidities: {
+          [inputIdentifier]: Boolean(inputValidity),
+        } as typeof state.inputValidities,
+      })
+    },
+    [updater]
+  )
 
   return (
     <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={50} style={authStyles.screen}>

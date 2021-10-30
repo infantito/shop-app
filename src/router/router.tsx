@@ -1,8 +1,9 @@
 import * as React from 'react'
+import { useNavigation } from '@react-navigation/core'
 import { useSelector } from 'react-redux'
 
 import type { RootState } from '~typings/store'
-import type { RouterProps as Props } from '~typings/router'
+import type { RootStackParamList, RouterProps as Props } from '~typings/router'
 import { Home } from '~screens'
 import { Routes } from '~constants'
 import { AuthNavigator, RootStack } from './router-stack'
@@ -10,6 +11,14 @@ import { ShopNavigator } from './router-drawer'
 
 const Router = (props: Props) => {
   const [token, isProcessing] = useSelector(({ auth }: RootState) => [auth.token, auth.isProcessing])
+
+  const navigation = useNavigation<RootStackParamList<Routes.AUTH>>()
+
+  React.useEffect(() => {
+    if (!isProcessing && !token) {
+      navigation.navigate(Routes.AUTH)
+    }
+  }, [isProcessing, token])
 
   if (isProcessing) {
     return (
