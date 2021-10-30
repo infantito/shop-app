@@ -50,6 +50,17 @@ const UserProducts = (props: Props) => {
           />
         </HeaderButtons>
       ),
+      headerRight: () => (
+        <HeaderButtons HeaderButtonComponent={HeaderButton}>
+          <Item
+            title="Add"
+            iconName={isAndroid ? 'md-create' : 'ios-create'}
+            onPress={() => {
+              navigation.navigate(Routes.UPDATE_PRODUCT)
+            }}
+          />
+        </HeaderButtons>
+      ),
     })
   }, [navigation])
 

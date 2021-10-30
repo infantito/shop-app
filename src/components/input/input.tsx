@@ -61,6 +61,12 @@ const Input = (props: Props) => {
     }
   }
 
+  React.useEffect(() => {
+    if (state.touched) {
+      onInputChange(id, value, isValid)
+    }
+  }, [state, onInputChange, id])
+
   return (
     <View style={inputStyles.formControl}>
       <Text style={inputStyles.label}>{label}</Text>

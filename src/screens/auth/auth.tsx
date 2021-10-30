@@ -26,11 +26,15 @@ const Auth = (props: Props) => {
       email: false,
       password: false,
     },
-    formIsValid: false,
   })
 
   const updater = (newState: Partial<typeof state>) => {
-    setState(prevState => ({ ...prevState, ...newState }))
+    setState(prevState => ({
+      ...prevState,
+      ...newState,
+      inputValues: { ...prevState.inputValues, ...newState.inputValues },
+      inputValidities: { ...prevState.inputValidities, ...newState.inputValidities },
+    }))
   }
 
   const { inputValues } = state
@@ -42,6 +46,14 @@ const Auth = (props: Props) => {
   }, [state.error])
 
   const handleAuth = async () => {
+    const isFormValid = Object.values(state.inputValidities).every(Boolean)
+
+    if (!isFormValid) {
+      Alert.alert('Wrong input!', 'Please check the errors in the form.', [{ text: 'Okay' }])
+
+      return
+    }
+
     updater({ isProcessing: true, error: null })
 
     if (state.isAuthenticated) {
@@ -62,13 +74,11 @@ const Auth = (props: Props) => {
   const handleInputChange = (inputIdentifier: string, inputValue: string, inputValidity: boolean) => {
     updater({
       inputValues: {
-        ...state.inputValues,
         [inputIdentifier]: inputValue,
-      },
+      } as typeof state.inputValues,
       inputValidities: {
-        ...state.inputValidities,
         [inputIdentifier]: Boolean(inputValidity),
-      },
+      } as typeof state.inputValidities,
     })
   }
 

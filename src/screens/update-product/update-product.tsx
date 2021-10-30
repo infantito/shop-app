@@ -12,7 +12,7 @@ import updateProductStyles from './update-product.styles'
 const UpdateProduct = (props: UpdateProductProps) => {
   const { route, navigation } = props
 
-  const { productId } = route.params
+  const { productId } = route.params || {}
 
   const editedProduct = useSelector((state: RootState) =>
     state.product.userProducts.find(product => product.id === productId)
@@ -33,17 +33,26 @@ const UpdateProduct = (props: UpdateProductProps) => {
       description: Boolean(editedProduct?.description),
       price: Boolean(editedProduct?.price),
     },
-    formIsValid: Boolean(editedProduct?.id),
   })
 
-  const updater = (newState: Partial<typeof state>) => {
-    setState(prevState => ({ ...prevState, ...newState }))
-  }
+  const updater = React.useMemo(
+    () => (newState: Partial<typeof state>) => {
+      setState(prevState => ({
+        ...prevState,
+        ...newState,
+        inputValues: { ...prevState.inputValues, ...newState.inputValues },
+        inputValidities: { ...prevState.inputValidities, ...newState.inputValidities },
+      }))
+    },
+    [setState]
+  )
 
   const dispatch = useDispatch()
 
   const handleSubmit = React.useCallback(async () => {
-    if (!state.formIsValid) {
+    const isFormValid = Object.values(state.inputValidities).every(Boolean)
+
+    if (!isFormValid) {
       Alert.alert('Wrong input!', 'Please check the errors in the form.', [{ text: 'Okay' }])
 
       return
@@ -68,18 +77,19 @@ const UpdateProduct = (props: UpdateProductProps) => {
     updater({ error, isLoading: false })
   }, [dispatch, productId, state])
 
-  const handleInputChange = (inputIdentifier: string, inputValue: string, inputValidity: boolean) => {
-    updater({
-      inputValues: {
-        ...state.inputValues,
-        [inputIdentifier]: inputValue,
-      },
-      inputValidities: {
-        ...state.inputValidities,
-        [inputIdentifier]: inputValidity,
-      },
-    })
-  }
+  const handleInputChange = React.useCallback(
+    (inputIdentifier: string, inputValue: string, inputValidity: boolean) => {
+      updater({
+        inputValues: {
+          [inputIdentifier]: inputValue,
+        } as typeof state.inputValues,
+        inputValidities: {
+          [inputIdentifier]: inputValidity,
+        } as typeof state.inputValidities,
+      })
+    },
+    [updater]
+  )
 
   React.useEffect(() => {
     if (state.error) {
@@ -96,7 +106,7 @@ const UpdateProduct = (props: UpdateProductProps) => {
         </HeaderButtons>
       ),
     })
-  }, [navigation])
+  }, [navigation, handleSubmit])
 
   if (state.isLoading) {
     return (
@@ -127,7 +137,7 @@ const UpdateProduct = (props: UpdateProductProps) => {
             id="imageUrl"
             label="Image Url"
             errorText="Please enter a valid image url!"
-            keyboardType="default"
+            keyboardType="url"
             returnKeyType="next"
             onInputChange={handleInputChange}
             initialValue={editedProduct ? editedProduct.imageUrl : ''}
