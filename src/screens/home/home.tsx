@@ -3,9 +3,9 @@ import { ActivityIndicator, View } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useDispatch } from 'react-redux'
 
-import type { UserAuth } from '~typings/assets/data'
+import type { UserAuth } from '~typings/store'
 import type { HomeProps } from '~typings/screens'
-import { authenticate, signIn, startUp } from '~store'
+import { authenticate, startUp } from '~store'
 import { Colors, StorageKey } from '~constants'
 import homeStyles from './home.styles'
 
@@ -38,9 +38,7 @@ const Home = (props: HomeProps) => {
         return
       }
 
-      const expirationTime = expirationDate.getTime() - new Date().getTime()
-
-      dispatch(authenticate({ expiresIn: expirationTime, user, token }))
+      dispatch(authenticate(transformedData))
     }
 
     handleSignIn()

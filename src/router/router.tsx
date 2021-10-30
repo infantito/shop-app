@@ -10,17 +10,13 @@ import { AuthNavigator, RootStack } from './router-stack'
 import { ShopNavigator } from './router-drawer'
 
 const Router = (props: Props) => {
-  const [token, isProcessing] = useSelector(({ auth }: RootState) => [auth.token, auth.isProcessing])
+  const [token, status] = useSelector(({ auth }: RootState) => [auth.token, auth.status] as const)
 
   const navigation = useNavigation<RootStackParamList<Routes.AUTH>>()
 
-  React.useEffect(() => {
-    if (!isProcessing && !token) {
-      navigation.navigate(Routes.AUTH)
-    }
-  }, [isProcessing, token])
+  const isBootingUp = status === 'booting-up'
 
-  if (isProcessing) {
+  if (isBootingUp) {
     return (
       <RootStack.Navigator screenOptions={{ headerShown: false }}>
         <RootStack.Screen name={Routes.HOME} component={Home} />

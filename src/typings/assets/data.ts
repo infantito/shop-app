@@ -1,11 +1,11 @@
 export type User = {
-  id: string
-  username: string
+  id: number
+  email: string
   password: string
 }
 
 export type Product = {
-  id: string
+  id: number
   ownerId: User['id']
   imageUrl: string
   title: string
@@ -18,15 +18,10 @@ export type CartProduct = {
 } & Product
 
 export type Order = {
-  id: string
-  date: number
+  id: number
   items: CartProduct[]
+  userId: User['id']
+  date: number
 }
 
 export type OrderProduct = CartProduct
-
-export type UserAuth = {
-  user: User
-  token: string
-  expiresIn: number
-}

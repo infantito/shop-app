@@ -1,23 +1,25 @@
 import * as React from 'react'
 import { LinearGradient } from 'expo-linear-gradient'
 import { View, Alert, KeyboardAvoidingView, ScrollView, ActivityIndicator, Button } from 'react-native'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
+import type { RootState } from '~typings/store'
 import type { AuthProps as Props } from '~typings/screens'
+import { signIn } from '~store'
 import { Card, Input } from '~components'
-import { Colors, Routes } from '~constants'
+import { Colors } from '~constants'
 import authStyles from './auth.styles'
-import { signIn } from '~store/auth-slice'
 
 const Auth = (props: Props) => {
-  const { navigation } = props
+  const [status] = useSelector((state: RootState) => [state.auth.status] as const)
+
+  const isAuthenticating = status === 'authenticating'
 
   const dispatch = useDispatch()
 
   const [state, setState] = React.useState({
-    isProcessing: false,
     error: null as string,
-    isAuthenticated: false,
+    isSignUp: false,
     inputValues: {
       email: '',
       password: '',
@@ -57,20 +59,16 @@ const Auth = (props: Props) => {
       return
     }
 
-    updater({ isProcessing: true, error: null })
-
-    if (state.isAuthenticated) {
-      console.log('dispatch: sign-up')
-    } else {
-      console.log('dispatch: sign-in')
-    }
+    updater({ error: null })
 
     try {
-      console.log('await dispatch action - authenticated')
-
-      dispatch(signIn({ username: inputValues.email, password: inputValues.password }))
+      if (state.isSignUp) {
+        console.log('dispatch: sign-up')
+      } else {
+        dispatch(signIn({ email: inputValues.email, password: inputValues.password }))
+      }
     } catch (caughtError: InstanceType<Error>) {
-      updater({ error: caughtError.message, isProcessing: false })
+      updater({ error: caughtError.message })
     }
   }
 
@@ -117,22 +115,18 @@ const Auth = (props: Props) => {
               initialValue=""
             />
             <View style={authStyles.buttonContainer}>
-              {state.isProcessing ? (
+              {isAuthenticating ? (
                 <ActivityIndicator size="small" color={Colors.primary} />
               ) : (
-                <Button
-                  title={state.isAuthenticated ? 'Sign Up' : 'Sign in'}
-                  color={Colors.primary}
-                  onPress={handleAuth}
-                />
+                <Button title={state.isSignUp ? 'Sign Up' : 'Sign in'} color={Colors.primary} onPress={handleAuth} />
               )}
             </View>
             <View style={authStyles.buttonContainer}>
               <Button
-                title={`Switch to ${state.isAuthenticated ? 'Sign in' : 'Sign Up'}`}
+                title={`Switch to ${state.isSignUp ? 'Sign in' : 'Sign Up'}`}
                 color={Colors.accent}
                 onPress={() => {
-                  updater({ isAuthenticated: !state.isAuthenticated })
+                  updater({ isSignUp: !state.isSignUp })
                 }}
               />
             </View>

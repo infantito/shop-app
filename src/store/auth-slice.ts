@@ -1,10 +1,11 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-import type { User, UserAuth } from '~typings/assets/data'
-import type { AuthenticateUser, SignInUser, UserCredentials } from '~typings/store'
+import type { User } from '~typings/assets/data'
+import type { UserAuth, UserCredentials } from '~typings/store'
 import { StorageKey } from '~constants'
+import { AuthAPI } from '~api'
 
 export enum AuthAction {
   AUTHENTICATE = 'AUTHENTICATE',
@@ -18,73 +19,86 @@ const initialState = {
   token: null as string,
   user: null as User,
   expiresIn: 0,
-  isProcessing: true,
+  status: 'booting-up' as 'booting-up' | 'authenticating',
 }
+
+export const signIn = createAsyncThunk('signIn', async (credentials: UserCredentials, thunkAPI) => {
+  const json = await AuthAPI.signIn(credentials)
+
+  const now = new Date()
+
+  const expireDate = new Date(now.setHours(now.getHours() + 8))
+
+  const result: UserAuth = {
+    token: json.accessToken,
+    user: json.user,
+    expiresIn: expireDate.getTime(),
+  }
+
+  if (result.token && result.user) {
+    await AsyncStorage.setItem(StorageKey.AUTH, JSON.stringify(result))
+  }
+
+  return result
+})
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
     [AuthAction.START_UP]: () => {
-      return { ...initialState, isProcessing: false }
+      return { ...initialState, status: null }
     },
-    [AuthAction.AUTHENTICATE]: (state, action: PayloadAction<AuthenticateUser>) => {
-      const { expiresIn, user, token } = action.payload
-
-      return { ...state, user, expiresIn, token, isProcessing: false }
-    },
-    [AuthAction.SIGN_IN]: (state, action: PayloadAction<SignInUser>) => {
-      const { username, password } = action.payload
-
-      const userId = `${username}-${password}`
-
-      const now = new Date()
-
-      const expireDate = new Date(now.setHours(now.getHours() + 8))
-
-      const auth: UserAuth = {
-        user: {
-          id: userId,
-          ...action.payload,
-        },
-        token: userId,
-        expiresIn: expireDate.getTime(),
-      }
-
-      AsyncStorage.setItem(StorageKey.AUTH, JSON.stringify(auth))
-
-      return {
-        ...state,
-        isProcessing: false,
-        token: window.btoa(userId),
-      }
+    [AuthAction.AUTHENTICATE]: (state, action: PayloadAction<UserAuth>) => {
+      return { ...state, ...action.payload, status: null }
     },
     [AuthAction.SIGN_OUT]: () => {
       AsyncStorage.clear()
 
-      return { ...initialState, isProcessing: false }
+      return { ...initialState, status: null }
     },
     [AuthAction.SIGN_UP]: (state, action: PayloadAction<UserCredentials>) => {
-      const { username, password } = action.payload
+      const { email, password } = action.payload
 
-      const userId = `${username}-${password}`
+      const userId = `${email}-${password}`
 
       return {
         ...state,
-        isProcessing: false,
+        status: null,
         token: window.btoa(userId),
       }
     },
   },
+  extraReducers: builder => {
+    builder.addCase(signIn.fulfilled, (state, action) => {
+      const { token, expiresIn, user } = action.payload
+
+      state.status = null
+
+      state.token = token
+
+      state.user = user
+
+      state.expiresIn = expiresIn
+    })
+
+    builder.addCase(signIn.pending, (state, action) => {
+      state.status = 'authenticating'
+    })
+
+    builder.addCase(signIn.rejected, (state, action) => {
+      state.status = 'authenticating'
+
+      state.token = null
+
+      state.expiresIn = 0
+
+      state.user = null
+    })
+  },
 })
 
-export const {
-  AUTHENTICATE: authenticate,
-  START_UP: startUp,
-  SIGN_IN: signIn,
-  SIGN_OUT: signOut,
-  SIGN_UP: signUp,
-} = authSlice.actions
+export const { AUTHENTICATE: authenticate, START_UP: startUp, SIGN_OUT: signOut, SIGN_UP: signUp } = authSlice.actions
 
 const authReducer = authSlice.reducer
 
