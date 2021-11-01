@@ -7,6 +7,7 @@ import { DrawerActions } from '@react-navigation/routers'
 import type { Product } from '~typings/assets/data'
 import type { RootState } from '~typings/store'
 import type { ProductsProps as Props } from '~typings/screens'
+import { fetchProducts } from '~store'
 import { Colors, isAndroid, Routes } from '~constants'
 import { ProductItem } from '~layouts'
 import { HeaderButton } from '~components'
@@ -15,39 +16,25 @@ import { productsOverviewStyles } from './products.styles'
 const ProductsOverview = (props: Props) => {
   const { navigation } = props
 
-  const [state, setState] = React.useState({
-    isLoading: true,
-    isRefreshing: false,
-    error: null as string,
-  })
+  const [token, { status, availableProducts: products }] = useSelector(
+    ({ auth, product }: RootState) => [auth.token, product] as const
+  )
 
-  const updater = (newState: Partial<typeof state>) => {
-    setState(prevState => ({
-      ...prevState,
-      ...newState,
-    }))
-  }
+  const isFetching = status === 'fetching'
 
-  const products = useSelector(({ product }: RootState) => product.availableProducts)
+  const isRefreshing = status === 'refreshing'
 
   const dispatch = useDispatch()
 
-  const loadProducts = React.useCallback(async () => {
-    let error = null as typeof state['error']
-
-    updater({ error, isRefreshing: true })
-
-    try {
-      console.log('await fetchProducts')
-    } catch (caughtError: InstanceType<Error>) {
-      error = caughtError.message
-    }
-
-    updater({ error, isRefreshing: false, isLoading: false })
-  }, [dispatch, setState, state.error])
+  const loadProducts = React.useCallback(
+    async (newStatus: typeof status) => {
+      dispatch(fetchProducts({ token, status: newStatus }))
+    },
+    [dispatch, token]
+  )
 
   React.useEffect(() => {
-    const focuser = navigation.addListener('focus', loadProducts)
+    const focuser = navigation.addListener('focus', loadProducts.bind(null, 'refreshing'))
     console.log('focus')
     return () => {
       navigation.removeListener('focus', focuser)
@@ -55,12 +42,8 @@ const ProductsOverview = (props: Props) => {
   }, [loadProducts])
 
   React.useEffect(() => {
-    updater({ isLoading: true })
-
-    loadProducts().then(() => {
-      updater({ isLoading: false })
-    })
-  }, [dispatch, loadProducts])
+    loadProducts('fetching')
+  }, [])
 
   React.useEffect(() => {
     navigation.setOptions({
@@ -96,16 +79,16 @@ const ProductsOverview = (props: Props) => {
     })
   }
 
-  if (state.error) {
+  if (status === 'error') {
     return (
       <View style={productsOverviewStyles.centered}>
         <Text>An error occurred!</Text>
-        <Button title="Try again" onPress={loadProducts} color={Colors.primary} />
+        <Button title="Try again" onPress={() => loadProducts('fetching')} color={Colors.primary} />
       </View>
     )
   }
 
-  if (state.isLoading) {
+  if (isFetching) {
     return (
       <View style={productsOverviewStyles.centered}>
         <ActivityIndicator size="large" color={Colors.primary} />
@@ -113,7 +96,7 @@ const ProductsOverview = (props: Props) => {
     )
   }
 
-  if (!state.isLoading && products.length === 0) {
+  if (!isFetching && products.length === 0) {
     return (
       <View style={productsOverviewStyles.centered}>
         <Text>No products found. Maybe start adding some!</Text>
@@ -123,10 +106,10 @@ const ProductsOverview = (props: Props) => {
 
   return (
     <FlatList
-      onRefresh={loadProducts}
-      refreshing={state.isRefreshing}
+      onRefresh={() => loadProducts('refreshing')}
+      refreshing={isRefreshing}
       data={products}
-      keyExtractor={item => item.id}
+      keyExtractor={item => item.id.toString()}
       renderItem={itemData => (
         <ProductItem item={itemData.item} handleSelect={() => handleSelectItem(itemData.item)}>
           <Button

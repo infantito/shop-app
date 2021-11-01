@@ -3,7 +3,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import type { User } from '~typings/assets/data'
-import type { UserAuth, UserCredentials } from '~typings/store'
+import type { SystemStatus, UserAuth, UserCredentials } from '~typings/store'
 import { StorageKey } from '~constants'
 import { AuthAPI } from '~api'
 
@@ -19,7 +19,7 @@ const initialState = {
   token: null as string,
   user: null as User,
   expiresIn: 0,
-  status: 'booting-up' as 'booting-up' | 'authenticating',
+  status: 'booting-up' as SystemStatus,
 }
 
 export const signIn = createAsyncThunk('signIn', async (credentials: UserCredentials, thunkAPI) => {

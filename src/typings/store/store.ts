@@ -12,3 +12,5 @@ export type UserAuth = {
   token: string
   expiresIn: number
 }
+
+export type SystemStatus = 'booting-up' | 'authenticating'
