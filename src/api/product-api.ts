@@ -40,6 +40,60 @@ const ProductAPI = {
       return []
     }
   },
+  createProduct: async (product: Product, token: string) => {
+    try {
+      const response = await fetch(API.CreateProduct, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(product),
+      })
+
+      const json = await response.json()
+
+      return json as Product
+    } catch (error) {
+      return {} as Product
+    }
+  },
+  updateProduct: async (product: Product, token: string) => {
+    try {
+      const response = await fetch(API.UpdateProduct, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(product),
+      })
+
+      const json = await response.json()
+
+      return json as Product
+    } catch (error) {
+      return {} as Product
+    }
+  },
+  deleteProduct: async (productId: Product['id'], token: string) => {
+    try {
+      const response = await fetch(API.DeleteProduct, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: productId }),
+      })
+
+      const json = await response.json()
+
+      return json as Product
+    } catch (error) {
+      return {} as Product
+    }
+  },
 }
 
 export default ProductAPI

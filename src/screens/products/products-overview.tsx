@@ -7,7 +7,7 @@ import { DrawerActions } from '@react-navigation/routers'
 import type { Product } from '~typings/assets/data'
 import type { RootState } from '~typings/store'
 import type { ProductsProps as Props } from '~typings/screens'
-import { fetchProducts } from '~store'
+import { addProduct, fetchProducts } from '~store'
 import { Colors, isAndroid, Routes } from '~constants'
 import { ProductItem } from '~layouts'
 import { HeaderButton } from '~components'
@@ -34,10 +34,10 @@ const ProductsOverview = (props: Props) => {
   )
 
   React.useEffect(() => {
-    const focuser = navigation.addListener('focus', loadProducts.bind(null, 'refreshing'))
+    // const focuser = navigation.addListener('focus', loadProducts.bind(null, 'refreshing'))
     console.log('focus')
     return () => {
-      navigation.removeListener('focus', focuser)
+      // navigation.removeListener('focus', focuser)
     }
   }, [loadProducts])
 
@@ -77,6 +77,10 @@ const ProductsOverview = (props: Props) => {
     navigation.navigate(Routes.PRODUCT_DETAIL, {
       product,
     })
+  }
+
+  const handleAddToCart = (product: Product) => {
+    dispatch(addProduct(product))
   }
 
   if (status === 'error') {
@@ -119,13 +123,7 @@ const ProductsOverview = (props: Props) => {
               handleSelectItem(itemData.item)
             }}
           />
-          <Button
-            color={Colors.primary}
-            title="To Cart"
-            onPress={() => {
-              console.log('dispatch: addToCart')
-            }}
-          />
+          <Button color={Colors.primary} title="To Cart" onPress={() => handleAddToCart(itemData.item)} />
         </ProductItem>
       )}
     />

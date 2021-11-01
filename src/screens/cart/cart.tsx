@@ -1,20 +1,19 @@
-import React, { useState } from 'react'
+import * as React from 'react'
 import { View, Text, FlatList, Button, ActivityIndicator } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 
 import type { RootState } from '~typings/store'
 import type { CartProps as Props } from '~typings/screens'
-import { Colors } from '~constants'
-import { Card } from '~components'
-import cartStyles from './cart.styles'
+import { createOrder, removeFromCart } from '~store'
 import { CartItem } from '~layouts'
+import { Card } from '~components'
+import { Colors } from '~constants'
+import cartStyles from './cart.styles'
 
 const Cart = (props: Props) => {
   const { navigation } = props
 
-  const [isLoading, setIsLoading] = useState(false)
-
-  const { cartTotalAmount, cartItems } = useSelector((state: RootState) => {
+  const { token, user, cartTotalAmount, cartItems, status } = useSelector((state: RootState) => {
     const { cart } = state
 
     const cartItemValues = Object.values(cart.items)
@@ -24,15 +23,18 @@ const Cart = (props: Props) => {
     return {
       cartTotalAmount: cart.totalAmount,
       cartItems,
+      status: state.order.status,
+      token: state.auth.token,
+      user: state.auth.user,
     }
   })
 
+  const isSavingOrder = status === 'creating'
+
   const dispatch = useDispatch()
 
-  const sendOrderHandler = async () => {
-    setIsLoading(true)
-
-    console.log('sendOrderHandler')
+  const handleSaveOrder = async () => {
+    dispatch(createOrder({ token, userId: user.id, items: cartItems }))
   }
 
   React.useEffect(() => {
@@ -47,26 +49,21 @@ const Cart = (props: Props) => {
         <Text style={cartStyles.summaryText}>
           Total: <Text style={cartStyles.amount}>${Math.round(Number(cartTotalAmount.toFixed(2)) * 100) / 100}</Text>
         </Text>
-        {isLoading ? (
+        {isSavingOrder ? (
           <ActivityIndicator size="small" color={Colors.primary} />
         ) : (
-          <Button
-            color={Colors.accent}
-            title="Order Now"
-            disabled={cartItems.length === 0}
-            onPress={sendOrderHandler}
-          />
+          <Button color={Colors.accent} title="Order Now" disabled={cartItems.length === 0} onPress={handleSaveOrder} />
         )}
       </Card>
       <FlatList
         data={cartItems}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item.id.toString()}
         renderItem={itemData => (
           <CartItem
             item={itemData.item}
             deletable
             handleRemove={() => {
-              console.log('handleRemove: dispatch(removeFromCart)')
+              dispatch(removeFromCart(itemData.item))
             }}
           />
         )}

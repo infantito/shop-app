@@ -6,6 +6,8 @@ export const API = {
   GetProducts: `${DOMAIN}/products`,
   GetUserProducts: `${DOMAIN}/products/:userId`,
   GetOrders: `${DOMAIN}/orders`,
+  CreateOrder: `${DOMAIN}/orders`,
+  GetUserOrders: `${DOMAIN}/orders`,
   CreateProduct: `${DOMAIN}/products`,
   UpdateProduct: `${DOMAIN}/products/:productId`,
   DeleteProduct: `${DOMAIN}/products/:productId`,

@@ -66,25 +66,5 @@
       "id": 3
     }
   ],
-  "orders": [
-    {
-      "id": "kvd8327f",
-      "items": [
-        {
-          "productId": "kv8xegd1",
-          "quantity": 2
-        },
-        {
-          "productId": "kv8xewq7",
-          "quantity": 1
-        },
-        {
-          "productId": "kvcxo5sb",
-          "quantity": 1
-        }
-      ],
-      "userId": 1,
-      "date": 1635563292824
-    }
-  ]
+  "orders": []
 }

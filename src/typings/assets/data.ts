@@ -19,8 +19,8 @@ export type CartProduct = {
 
 export type Order = {
   id: number
-  items: CartProduct[]
   userId: User['id']
+  items: CartProduct[]
   date: number
 }
 

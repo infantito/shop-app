@@ -1,4 +1,4 @@
-import type { PayloadAction } from '@reduxjs/toolkit'
+import { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 
 import type { CartProduct, Product } from '~typings/assets/data'
@@ -6,7 +6,7 @@ import type { CartProduct, Product } from '~typings/assets/data'
 export enum CartAction {
   ADD_PRODUCT = 'ADD_PRODUCT',
   REMOVE_FROM_CART = 'REMOVE_FROM_CART',
-  CREATE_ORDER = 'CREATE_ORDER',
+  CLEAR_CART = 'CLEAR_CART',
   REMOVE_FROM_ORDER = 'REMOVE_FROM_ORDER',
 }
 
@@ -59,7 +59,7 @@ const cartSlice = createSlice({
         totalAmount: state.totalAmount - selectedCartItem.price,
       }
     },
-    [CartAction.CREATE_ORDER]: () => {
+    [CartAction.CLEAR_CART]: () => {
       return initialState
     },
     [CartAction.REMOVE_FROM_ORDER]: (state, actions: PayloadAction<Product>) => {
@@ -89,8 +89,8 @@ const cartSlice = createSlice({
 export const {
   ADD_PRODUCT: addProduct,
   REMOVE_FROM_CART: removeFromCart,
-  CREATE_ORDER: createOrder,
   REMOVE_FROM_ORDER: removeFromOrder,
+  CLEAR_CART: clearCart,
 } = cartSlice.actions
 
 const cartReducer = cartSlice.reducer
