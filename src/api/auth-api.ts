@@ -19,6 +19,23 @@ const AuthAPI = {
       return null
     }
   },
+  signUp: async (userCredentials: SignInRequest) => {
+    try {
+      const response = await fetch(API.SignUp, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userCredentials),
+      })
+
+      const json: SignInResponse = await response.json()
+
+      return json
+    } catch (error) {
+      return null
+    }
+  },
 }
 
 export default AuthAPI

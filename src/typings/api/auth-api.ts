@@ -7,3 +7,10 @@ export type SignInResponse = {
   accessToken: string
   user: User
 }
+
+export type SignUpRequest = UserCredentials
+
+export type SignUpResponse = {
+  accessToken: string
+  user: User
+}

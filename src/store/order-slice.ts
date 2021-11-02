@@ -21,8 +21,6 @@ export const createOrder = createAsyncThunk(
   async (params: Pick<CreateOrderRequest, 'items' | 'userId'> & { token: string }, thunkAPI) => {
     const { items, userId, token } = params
 
-    thunkAPI.dispatch(clearCart())
-
     const order: CreateOrderRequest = {
       id: Date.now().toString(36),
       items,
@@ -31,6 +29,8 @@ export const createOrder = createAsyncThunk(
     }
 
     const json = await OrderAPI.createOrder(token, order)
+
+    thunkAPI.dispatch(clearCart())
 
     return json
   }

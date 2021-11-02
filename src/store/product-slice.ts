@@ -46,9 +46,9 @@ export const createProduct = createAsyncThunk('createProduct', async (params: Cr
 
   const { auth } = thunkAPI.getState() as RootState
 
-  thunkAPI.dispatch(fetchUserProducts({ token, userId: auth.user.id, status: 'creating' }))
-
   const json = await ProductAPI.createProduct({ product, token })
+
+  thunkAPI.dispatch(fetchUserProducts({ token, userId: auth.user.id, status: 'creating' }))
 
   return json
 })
@@ -58,9 +58,9 @@ export const updateProduct = createAsyncThunk('updateProduct', async (params: Up
 
   const { auth } = thunkAPI.getState() as RootState
 
-  thunkAPI.dispatch(fetchUserProducts({ token, userId: auth.user.id, status: 'updating' }))
-
   const json = await ProductAPI.updateProduct({ product, token })
+
+  thunkAPI.dispatch(fetchUserProducts({ token, userId: auth.user.id, status: 'updating' }))
 
   return json
 })
@@ -70,9 +70,9 @@ export const deleteProduct = createAsyncThunk('deleteProduct', async (params: De
 
   const { auth } = thunkAPI.getState() as RootState
 
-  thunkAPI.dispatch(fetchUserProducts({ token, userId: auth.user.id, status: 'deleting' }))
-
   const json = await ProductAPI.deleteProduct(productId, token)
+
+  thunkAPI.dispatch(fetchUserProducts({ token, userId: auth.user.id, status: 'deleting' }))
 
   return json
 })

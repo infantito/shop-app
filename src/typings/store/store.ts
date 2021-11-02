@@ -13,4 +13,4 @@ export type UserAuth = {
   expiresIn: number
 }
 
-export type SystemStatus = 'booting-up' | 'authenticating'
+export type SystemStatus = 'booting-up' | 'authenticating' | 'error'

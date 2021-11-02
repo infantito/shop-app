@@ -42,6 +42,26 @@ export const signIn = createAsyncThunk('signIn', async (credentials: UserCredent
   return result
 })
 
+export const signUp = createAsyncThunk('signUp', async (credentials: UserCredentials, thunkAPI) => {
+  const json = await AuthAPI.signUp(credentials)
+
+  const now = new Date()
+
+  const expireDate = new Date(now.setHours(now.getHours() + 8))
+
+  const result: UserAuth = {
+    token: json.accessToken,
+    user: json.user,
+    expiresIn: expireDate.getTime(),
+  }
+
+  if (result.token && result.user) {
+    await AsyncStorage.setItem(StorageKey.AUTH, JSON.stringify(result))
+  }
+
+  return result
+})
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -56,17 +76,6 @@ const authSlice = createSlice({
       AsyncStorage.clear()
 
       return { ...initialState, status: null }
-    },
-    [AuthAction.SIGN_UP]: (state, action: PayloadAction<UserCredentials>) => {
-      const { email, password } = action.payload
-
-      const userId = `${email}-${password}`
-
-      return {
-        ...state,
-        status: null,
-        token: window.btoa(userId),
-      }
     },
   },
   extraReducers: builder => {
@@ -95,10 +104,36 @@ const authSlice = createSlice({
 
       state.user = null
     })
+
+    builder.addCase(signUp.fulfilled, (state, action) => {
+      const { token, expiresIn, user } = action.payload
+
+      state.status = null
+
+      state.token = token
+
+      state.user = user
+
+      state.expiresIn = expiresIn
+    })
+
+    builder.addCase(signUp.pending, (state, action) => {
+      state.status = 'authenticating'
+    })
+
+    builder.addCase(signUp.rejected, (state, action) => {
+      state.status = 'authenticating'
+
+      state.token = null
+
+      state.expiresIn = 0
+
+      state.user = null
+    })
   },
 })
 
-export const { AUTHENTICATE: authenticate, START_UP: startUp, SIGN_OUT: signOut, SIGN_UP: signUp } = authSlice.actions
+export const { AUTHENTICATE: authenticate, START_UP: startUp, SIGN_OUT: signOut } = authSlice.actions
 
 const authReducer = authSlice.reducer
 

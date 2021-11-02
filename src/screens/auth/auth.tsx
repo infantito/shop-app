@@ -5,20 +5,19 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import type { RootState } from '~typings/store'
 import type { AuthProps as Props } from '~typings/screens'
-import { signIn } from '~store'
+import { signIn, signUp } from '~store'
 import { Card, Input } from '~components'
 import { Colors } from '~constants'
 import authStyles from './auth.styles'
 
 const Auth = (props: Props) => {
-  const [status] = useSelector((state: RootState) => [state.auth.status] as const)
+  const { status } = useSelector((state: RootState) => state.auth)
 
   const isAuthenticating = status === 'authenticating'
 
   const dispatch = useDispatch()
 
   const [state, setState] = React.useState({
-    error: null as string,
     isSignUp: false,
     inputValues: {
       email: '',
@@ -45,10 +44,10 @@ const Auth = (props: Props) => {
   const { inputValues } = state
 
   React.useEffect(() => {
-    if (state.error) {
-      Alert.alert('An error ocurred!', state.error, [{ text: 'Okay' }])
+    if (status === 'error') {
+      Alert.alert('An error ocurred!', '500', [{ text: 'Okay' }])
     }
-  }, [state.error])
+  }, [status])
 
   const handleAuth = async () => {
     const isFormValid = Object.values(state.inputValidities).every(Boolean)
@@ -59,16 +58,10 @@ const Auth = (props: Props) => {
       return
     }
 
-    updater({ error: null })
-
-    try {
-      if (state.isSignUp) {
-        console.log('dispatch: sign-up')
-      } else {
-        dispatch(signIn({ email: inputValues.email, password: inputValues.password }))
-      }
-    } catch (caughtError: InstanceType<Error>) {
-      updater({ error: caughtError.message })
+    if (state.isSignUp) {
+      dispatch(signUp({ email: inputValues.email, password: inputValues.password }))
+    } else {
+      dispatch(signIn({ email: inputValues.email, password: inputValues.password }))
     }
   }
 
