@@ -3,8 +3,10 @@ import { View, ScrollView, Alert, KeyboardAvoidingView, ActivityIndicator } from
 import { HeaderButtons, Item } from 'react-navigation-header-buttons'
 import { useSelector, useDispatch } from 'react-redux'
 
+import type { Product } from '~typings/assets/data'
 import type { RootState } from '~typings/store'
 import type { UpdateProductProps } from '~typings/screens'
+import { createProduct, updateProduct } from '~store'
 import { HeaderButton, Input } from '~components'
 import { Colors, isAndroid } from '~constants'
 import updateProductStyles from './update-product.styles'
@@ -14,13 +16,21 @@ const UpdateProduct = (props: UpdateProductProps) => {
 
   const { productId } = route.params || {}
 
-  const editedProduct = useSelector((state: RootState) =>
-    state.product.userProducts.find(product => product.id === productId)
-  )
+  const {
+    product: editedProduct,
+    userId,
+    token,
+    status,
+  } = useSelector(({ auth, product }: RootState) => {
+    return {
+      userId: auth.user.id,
+      token: auth.token,
+      product: product.userProducts.find(item => item.id === productId),
+      status: product.status,
+    }
+  })
 
   const [state, setState] = React.useState({
-    isLoading: false,
-    error: null as string,
     inputValues: {
       title: editedProduct?.title ?? '',
       imageUrl: editedProduct?.imageUrl ?? '',
@@ -58,23 +68,25 @@ const UpdateProduct = (props: UpdateProductProps) => {
       return
     }
 
-    updater({ error: null, isLoading: true })
+    const { inputValues } = state
 
-    let error = state.error
+    const payload = {
+      ownerId: userId,
+      imageUrl: inputValues.imageUrl,
+      title: inputValues.title,
+      description: inputValues.description,
+      price: Number(inputValues.price),
+    } as Product
 
-    try {
-      if (editedProduct) {
-        console.log('dispatch: edit product')
-      } else {
-        console.log('dispatch: create product')
-      }
+    if (editedProduct) {
+      payload.id = editedProduct.id
 
-      navigation.goBack()
-    } catch (caughtError: InstanceType<Error>) {
-      error = caughtError.message
+      dispatch(updateProduct({ product: payload, token }))
+    } else {
+      dispatch(createProduct({ product: payload, token }))
     }
 
-    updater({ error, isLoading: false })
+    navigation.goBack()
   }, [dispatch, productId, state])
 
   const handleInputChange = React.useCallback(
@@ -92,10 +104,10 @@ const UpdateProduct = (props: UpdateProductProps) => {
   )
 
   React.useEffect(() => {
-    if (state.error) {
-      Alert.alert('An error occurred!', state.error, [{ text: 'Okay' }])
+    if (status === 'error') {
+      Alert.alert('An error occurred!', '500', [{ text: 'Okay' }])
     }
-  }, [state.error])
+  }, [status])
 
   React.useEffect(() => {
     navigation.setOptions({
@@ -108,7 +120,7 @@ const UpdateProduct = (props: UpdateProductProps) => {
     })
   }, [navigation, handleSubmit])
 
-  if (state.isLoading) {
+  if (status === 'creating' || status === 'updating') {
     return (
       <View style={updateProductStyles.centered}>
         <ActivityIndicator size="large" color={Colors.primary} />

@@ -1,6 +1,6 @@
 import type { Product, User } from '~typings/assets/data'
 
-export type ProductStatus = 'fetching' | 'refreshing' | 'error'
+export type ProductStatus = 'fetching' | 'refreshing' | 'creating' | 'updating' | 'deleting' | 'error'
 
 export type FetchProductsRequest = {
   token: string
@@ -14,7 +14,7 @@ export type FetchUserProductsRequest = {
 }
 
 export type CreateProductRequest = {
-  product: Product
+  product: Omit<Product, 'id'>
   token: string
 }
 

@@ -6,8 +6,10 @@ import type {
   DeleteProductRequest,
   FetchProductsRequest,
   FetchUserProductsRequest,
+  ProductStatus,
   UpdateProductRequest,
 } from '~typings/api'
+import type { RootState } from '~typings/store'
 import { ProductAPI } from '~api'
 
 export enum ProductAction {
@@ -20,11 +22,11 @@ export enum ProductAction {
 const initialState = {
   availableProducts: [] as Product[],
   userProducts: [] as Product[],
-  status: 'fetching' as 'fetching' | 'refreshing' | 'error',
+  status: 'fetching' as ProductStatus,
 }
 
 export const fetchProducts = createAsyncThunk('fetchProducts', async (params: FetchProductsRequest) => {
-  const { token, status } = params
+  const { token } = params
 
   const json = await ProductAPI.getProducts(token)
 
@@ -39,24 +41,36 @@ export const fetchUserProducts = createAsyncThunk('fetchUserProducts', async (pa
   return json
 })
 
-export const createProduct = createAsyncThunk('createProduct', async (params: CreateProductRequest) => {
+export const createProduct = createAsyncThunk('createProduct', async (params: CreateProductRequest, thunkAPI) => {
   const { token, product } = params
 
-  const json = await ProductAPI.createProduct(product, token)
+  const { auth } = thunkAPI.getState() as RootState
+
+  thunkAPI.dispatch(fetchUserProducts({ token, userId: auth.user.id, status: 'creating' }))
+
+  const json = await ProductAPI.createProduct({ product, token })
 
   return json
 })
 
-export const updateProduct = createAsyncThunk('updateProduct', async (params: UpdateProductRequest) => {
+export const updateProduct = createAsyncThunk('updateProduct', async (params: UpdateProductRequest, thunkAPI) => {
   const { token, product } = params
 
-  const json = await ProductAPI.updateProduct(product, token)
+  const { auth } = thunkAPI.getState() as RootState
+
+  thunkAPI.dispatch(fetchUserProducts({ token, userId: auth.user.id, status: 'updating' }))
+
+  const json = await ProductAPI.updateProduct({ product, token })
 
   return json
 })
 
-export const deleteProduct = createAsyncThunk('deleteProduct', async (params: DeleteProductRequest) => {
+export const deleteProduct = createAsyncThunk('deleteProduct', async (params: DeleteProductRequest, thunkAPI) => {
   const { productId, token } = params
+
+  const { auth } = thunkAPI.getState() as RootState
+
+  thunkAPI.dispatch(fetchUserProducts({ token, userId: auth.user.id, status: 'deleting' }))
 
   const json = await ProductAPI.deleteProduct(productId, token)
 
@@ -115,6 +129,69 @@ const productSlice = createSlice({
         ...state,
         status: 'error',
         userProducts: [],
+      }
+    })
+
+    builder.addCase(createProduct.fulfilled, (state, action) => {
+      return {
+        ...state,
+        status: null,
+      }
+    })
+
+    builder.addCase(createProduct.pending, (state, action) => {
+      return {
+        ...state,
+        status: 'creating',
+      }
+    })
+
+    builder.addCase(createProduct.rejected, (state, action) => {
+      return {
+        ...state,
+        status: 'error',
+      }
+    })
+
+    builder.addCase(updateProduct.fulfilled, (state, action) => {
+      return {
+        ...state,
+        status: null,
+      }
+    })
+
+    builder.addCase(updateProduct.pending, (state, action) => {
+      return {
+        ...state,
+        status: 'updating',
+      }
+    })
+
+    builder.addCase(updateProduct.rejected, (state, action) => {
+      return {
+        ...state,
+        status: 'error',
+      }
+    })
+
+    builder.addCase(deleteProduct.fulfilled, (state, action) => {
+      return {
+        ...state,
+        status: null,
+      }
+    })
+
+    builder.addCase(deleteProduct.pending, (state, action) => {
+      return {
+        ...state,
+        status: 'updating',
+      }
+    })
+
+    builder.addCase(deleteProduct.rejected, (state, action) => {
+      return {
+        ...state,
+        status: 'error',
       }
     })
   },

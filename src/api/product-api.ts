@@ -1,4 +1,5 @@
 import type { Product, User } from '~typings/assets/data'
+import type { CreateProductRequest, UpdateProductRequest } from '~typings/api'
 import { API } from '~constants'
 
 const ProductAPI = {
@@ -40,7 +41,9 @@ const ProductAPI = {
       return []
     }
   },
-  createProduct: async (product: Product, token: string) => {
+  createProduct: async (params: CreateProductRequest) => {
+    const { product, token } = params
+
     try {
       const response = await fetch(API.CreateProduct, {
         method: 'POST',
@@ -58,9 +61,11 @@ const ProductAPI = {
       return {} as Product
     }
   },
-  updateProduct: async (product: Product, token: string) => {
+  updateProduct: async (params: UpdateProductRequest) => {
+    const { product, token } = params
+
     try {
-      const response = await fetch(API.UpdateProduct, {
+      const response = await fetch(`${API.UpdateProduct}/${product.id}`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -78,13 +83,12 @@ const ProductAPI = {
   },
   deleteProduct: async (productId: Product['id'], token: string) => {
     try {
-      const response = await fetch(API.DeleteProduct, {
+      const response = await fetch(`${API.DeleteProduct}/${productId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id: productId }),
       })
 
       const json = await response.json()
