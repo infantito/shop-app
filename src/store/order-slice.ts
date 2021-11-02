@@ -1,7 +1,7 @@
-import { createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
+import { createAsyncThunk } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 
-import type { CreateOrderRequest, OrderStatus } from '~typings/api'
+import type { CreateOrderRequest, GetUserOrdersRequest, OrderStatus } from '~typings/api'
 import type { Order } from '~typings/assets/data'
 import { OrderAPI } from '~api'
 import { clearCart } from './cart-slice'
@@ -36,17 +36,18 @@ export const createOrder = createAsyncThunk(
   }
 )
 
+export const getUserOrders = createAsyncThunk('getUserOrders', async (params: GetUserOrdersRequest) => {
+  const { token, userId } = params
+
+  const json = await OrderAPI.getUserOrders(token, userId)
+
+  return json
+})
+
 const orderSlice = createSlice({
   name: 'order',
   initialState,
-  reducers: {
-    [OrderAction.GET_ORDERS]: (state, action: PayloadAction<Order[]>) => {
-      return {
-        ...state,
-        orders: action.payload,
-      }
-    },
-  },
+  reducers: {},
   extraReducers: builder => {
     builder.addCase(createOrder.fulfilled, (state, action) => {
       return {
@@ -68,10 +69,32 @@ const orderSlice = createSlice({
         status: 'error',
       }
     })
+
+    builder.addCase(getUserOrders.fulfilled, (state, action) => {
+      return {
+        ...state,
+        status: null,
+        orders: action.payload,
+      }
+    })
+
+    builder.addCase(getUserOrders.pending, (state, action) => {
+      const { status } = action.meta.arg
+
+      return {
+        ...state,
+        status,
+      }
+    })
+
+    builder.addCase(getUserOrders.rejected, (state, action) => {
+      return {
+        ...state,
+        status: 'error',
+      }
+    })
   },
 })
-
-export const { GET_ORDERS: getOrders } = orderSlice.actions
 
 const orderReducer = orderSlice.reducer
 

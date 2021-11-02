@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import type { RootState } from '~typings/store'
 import type { ProductDetailProps as Props } from '~typings/screens'
+import { addProduct } from '~store'
 import { Colors } from '~constants'
 import productDetailStyles from './product-detail.styles'
 
@@ -18,6 +19,10 @@ const ProductDetail = (props: Props) => {
 
   const dispatch = useDispatch()
 
+  const handleAddProduct = () => {
+    dispatch(addProduct(product))
+  }
+
   React.useEffect(() => {
     navigation.setOptions({
       headerTitle: product.title,
@@ -28,13 +33,7 @@ const ProductDetail = (props: Props) => {
     <ScrollView>
       <Image style={productDetailStyles.image} source={{ uri: selectedProduct.imageUrl }} />
       <View style={productDetailStyles.actions}>
-        <Button
-          color={Colors.primary}
-          title="Add to Cart"
-          onPress={() => {
-            console.log('Add to cart pressed')
-          }}
-        />
+        <Button color={Colors.primary} title="Add to Cart" onPress={handleAddProduct} />
       </View>
       <Text style={productDetailStyles.price}>${selectedProduct.price.toFixed(2)}</Text>
       <Text style={productDetailStyles.description}>{selectedProduct.description}</Text>

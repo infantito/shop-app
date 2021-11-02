@@ -8,3 +8,9 @@ export type CreateOrderRequest = {
   items: Product[]
   date: number
 }
+
+export type GetUserOrdersRequest = {
+  userId: User['id']
+  token: string
+  status: OrderStatus
+}

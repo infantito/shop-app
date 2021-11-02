@@ -4,8 +4,10 @@ import { DrawerActions } from '@react-navigation/routers'
 import { HeaderButtons, Item } from 'react-navigation-header-buttons'
 import { useDispatch, useSelector } from 'react-redux'
 
+import type { OrderStatus } from '~typings/api'
 import type { RootState } from '~typings/store'
 import type { OrdersProps as Props } from '~typings/screens'
+import { getUserOrders } from '~store'
 import { OrderItem } from '~layouts'
 import { HeaderButton } from '~components'
 import { Colors, isAndroid } from '~constants'
@@ -14,17 +16,26 @@ import orderStyles from './orders.styles'
 const Orders = (props: Props) => {
   const { navigation } = props
 
-  const [isLoading, setIsLoading] = React.useState(false)
+  const { orders, token, userId, status } = useSelector(({ order, auth }: RootState) => {
+    const userOrders = order.orders.filter(order => order.userId === auth.user.id)
 
-  const orders = useSelector((state: RootState) => state.order.orders)
+    return {
+      orders: userOrders,
+      userId: auth.user.id,
+      token: auth.token,
+      status: order.status,
+    }
+  })
 
   const dispatch = useDispatch()
 
-  React.useEffect(() => {
-    setIsLoading(true)
+  const loadOrders = (newStatus: OrderStatus) => {
+    dispatch(getUserOrders({ status: newStatus, token, userId }))
+  }
 
-    console.log(`dispatch - getOrders`)
-  }, [dispatch])
+  React.useEffect(() => {
+    loadOrders('fetching')
+  }, [])
 
   React.useEffect(() => {
     navigation.setOptions({
@@ -43,7 +54,7 @@ const Orders = (props: Props) => {
     })
   }, [navigation])
 
-  if (isLoading) {
+  if (status === 'fetching') {
     return (
       <View style={orderStyles.centered}>
         <ActivityIndicator size="large" color={Colors.primary} />
@@ -61,8 +72,10 @@ const Orders = (props: Props) => {
 
   return (
     <FlatList
+      onRefresh={() => loadOrders('refreshing')}
+      refreshing={status === 'refreshing'}
       data={orders}
-      keyExtractor={item => item.id}
+      keyExtractor={item => item.id.toString()}
       renderItem={itemData => <OrderItem date={itemData.item.date} items={itemData.item.items} />}
     />
   )

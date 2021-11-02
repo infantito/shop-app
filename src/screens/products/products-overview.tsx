@@ -5,12 +5,13 @@ import { HeaderButtons, Item } from 'react-navigation-header-buttons'
 import { DrawerActions } from '@react-navigation/routers'
 
 import type { Product } from '~typings/assets/data'
+import { ProductStatus } from '~typings/api'
 import type { RootState } from '~typings/store'
 import type { ProductsProps as Props } from '~typings/screens'
 import { addProduct, fetchProducts } from '~store'
-import { Colors, isAndroid, Routes } from '~constants'
 import { ProductItem } from '~layouts'
 import { HeaderButton } from '~components'
+import { Colors, isAndroid, Routes } from '~constants'
 import { productsOverviewStyles } from './products.styles'
 
 const ProductsOverview = (props: Props) => {
@@ -27,7 +28,7 @@ const ProductsOverview = (props: Props) => {
   const dispatch = useDispatch()
 
   const loadProducts = React.useCallback(
-    async (newStatus: typeof status) => {
+    async (newStatus: ProductStatus) => {
       dispatch(fetchProducts({ token, status: newStatus }))
     },
     [dispatch, token]

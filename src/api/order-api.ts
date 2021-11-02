@@ -9,7 +9,7 @@ const OrderAPI = {
 
       url.searchParams.append('userId', userId.toString())
 
-      const response = await fetch(API.CreateProduct, {
+      const response = await fetch(url.toString(), {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,

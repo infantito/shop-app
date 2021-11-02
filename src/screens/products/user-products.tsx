@@ -5,8 +5,10 @@ import { DrawerActions } from '@react-navigation/routers'
 import { useDispatch, useSelector } from 'react-redux'
 
 import type { Product } from '~typings/assets/data'
+import { ProductStatus } from '~typings/api'
 import type { RootState } from '~typings/store'
 import type { ProductsProps as Props } from '~typings/screens'
+import { deleteProduct, fetchUserProducts } from '~store'
 import { ProductItem } from '~layouts'
 import { HeaderButton } from '~components'
 import { Colors, isAndroid, Routes } from '~constants'
@@ -15,7 +17,12 @@ import { userProductsStyles } from './products.styles'
 const UserProducts = (props: Props) => {
   const { navigation } = props
 
-  const userProducts = useSelector((state: RootState) => state.product.userProducts)
+  const { userProducts, token, user, status } = useSelector(({ product, auth }: RootState) => ({
+    userProducts: product.userProducts,
+    token: auth.token,
+    user: auth.user,
+    status: product.status,
+  }))
 
   const dispatch = useDispatch()
 
@@ -30,11 +37,19 @@ const UserProducts = (props: Props) => {
         text: 'Yes',
         style: 'destructive',
         onPress: () => {
-          console.log('dispatch: delete product')
+          dispatch(deleteProduct({ token, productId: id }))
         },
       },
     ])
   }
+
+  const loadProducts = async (newStatus: ProductStatus) => {
+    dispatch(fetchUserProducts({ token, status: newStatus, userId: user.id }))
+  }
+
+  React.useEffect(() => {
+    loadProducts('fetching')
+  }, [])
 
   React.useEffect(() => {
     navigation.setOptions({
@@ -74,8 +89,10 @@ const UserProducts = (props: Props) => {
 
   return (
     <FlatList
+      onRefresh={() => loadProducts('refreshing')}
+      refreshing={status === 'refreshing'}
       data={userProducts}
-      keyExtractor={item => item.id}
+      keyExtractor={item => item.id.toString()}
       renderItem={itemData => (
         <ProductItem item={itemData.item} handleSelect={handleEdit.bind(this, itemData.item)}>
           <Button color={Colors.primary} title="Edit" onPress={handleEdit.bind(this, itemData.item)} />
